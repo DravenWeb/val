@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draven Core — Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A0E14; --panel:#10151D; --line:#232B36;
+  --steel:#5C7A94; --amber:#E0A03C; --red:#C4574A; --green:#5A9A6F;
+  --text:#E6E4DD; --text-dim:#8B93A0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh}
+
+/* login */
+#loginScreen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--ink);z-index:100}
+.login-card{background:var(--panel);border:1px solid var(--line);padding:44px 36px;width:min(340px,90vw)}
+.login-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin-bottom:26px}
+.login-input{width:100%;background:transparent;border:1px solid var(--line);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13.5px;padding:11px 14px;margin-bottom:12px;outline:none}
+.login-input:focus{border-color:var(--steel)}
+.login-btn{width:100%;padding:11px;background:var(--amber);color:var(--ink);border:none;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;margin-top:4px}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
+
+/* dashboard */
+#dashboard{display:none}
+.dash-header{border-bottom:1px solid var(--line);padding:18px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;position:sticky;top:0;background:var(--ink);z-index:10}
+.dash-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px}
+.filters{display:flex;gap:8px}
+.filter-btn{background:none;border:1px solid var(--line);color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 13px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em}
+.filter-btn.active{border-color:var(--amber);color:var(--amber)}
+
+.list{max-width:920px;margin:0 auto;padding:24px 28px}
+.card{border:1px solid var(--line);margin-bottom:14px}
+.card-head{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.card-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px}
+.card-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:3px}
+.status-badge{font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:5px 10px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line)}
+.status-pending{color:var(--text-dim)}
+.status-review{color:var(--amber);border-color:var(--amber)}
+.status-approved{color:var(--green);border-color:var(--green)}
+.status-rejected{color:var(--red);border-color:var(--red)}
+
+.card-body{display:none;padding:0 20px 20px;border-top:1px solid var(--line)}
+.card-body.open{display:block}
+.field{margin-top:16px}
+.field-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.field-value{font-size:14px;line-height:1.6;white-space:pre-wrap}
+.field-value a{color:var(--steel)}
+.field-value.empty{color:var(--text-dim);font-style:italic}
+.time-tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-dim);margin-left:8px}
+
+.notes-box{width:100%;background:transparent;border:1px solid var(--line);color:var(--text);font-family:'Inter',sans-serif;font-size:13.5px;padding:10px 12px;min-height:60px;margin-top:16px;resize:vertical}
+.action-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.action-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 14px;border:1px solid var(--line);background:none;color:var(--text-dim);cursor:pointer;text-transform:uppercase}
+.action-btn.approve:hover{border-color:var(--green);color:var(--green)}
+.action-btn.reject:hover{border-color:var(--red);color:var(--red)}
+.action-btn.review:hover{border-color:var(--amber);color:var(--amber)}
+.action-btn.save{margin-left:auto}
+
+.empty-state{text-align:center;color:var(--text-dim);padding:60px 20px;font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-title">Draven Core — Review</div>
+    <input class="login-input" id="loginEmail" type="email" placeholder="email">
+    <input class="login-input" id="loginPass" type="password" placeholder="password">
+    <button class="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="dashboard">
+  <div class="dash-header">
+    <div class="dash-title">Draven Core — Applications</div>
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-status="all">All</button>
+      <button class="filter-btn" data-status="pending">Pending</button>
+      <button class="filter-btn" data-status="review">Review</button>
+      <button class="filter-btn" data-status="approved">Approved</button>
+      <button class="filter-btn" data-status="rejected">Rejected</button>
+    </div>
+  </div>
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ufjzhfuazmhlvwmvvlgb.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_K_gDRujcdtPNBSuHpz0AcA_PN8tH7lv";
+
+let accessToken = null;
+let applications = [];
+let activeFilter = 'all';
+
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.textContent = '';
+  try{
+    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},
+      body: JSON.stringify({email, password})
+    });
+    const data = await res.json();
+    if(!res.ok || !data.access_token){
+      errEl.textContent = 'Invalid credentials.';
+      return;
+    }
+    accessToken = data.access_token;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadApplications();
+  }catch(e){
+    errEl.textContent = 'Network error.';
+  }
+}
+
+async function loadApplications(){
+  const res = await fetch(SUPABASE_URL + '/rest/v1/core_applicants?select=*&order=created_at.desc', {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + accessToken
+    }
+  });
+  applications = await res.json();
+  renderList();
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  const filtered = activeFilter==='all' ? applications : applications.filter(a=>a.status===activeFilter);
+  if(!filtered.length){
+    list.innerHTML = '<div class="empty-state">No applications in this view.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  filtered.forEach(app=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-head" onclick="toggleCard('${app.id}')">
+        <div>
+          <div class="card-name">${esc(app.name||'(no name)')}</div>
+          <div class="card-sub">${esc(app.email||'')} · ${new Date(app.created_at).toLocaleDateString()}</div>
+        </div>
+        <div class="status-badge status-${app.status}">${app.status}</div>
+      </div>
+      <div class="card-body" id="body-${app.id}">
+        ${field('Telegram', app.telegram)}
+        ${field('Layer', app.layer)}
+        ${field('Why that layer', app.layer_reasoning)}
+        ${field('Stack', (app.stack||[]).join(', '))}
+        ${field('Work link', app.work_link, true)}
+        ${field('Failure story', app.failure_story)}
+        ${field('Decentralization view', app.decentralization_view)}
+        ${field('DeFi primitive', app.defi_primitive)}
+        ${field('Mechanism explanation', app.defi_mechanism_explain)}
+        ${field('Wrong/overstated claim', app.wrong_claim)}
+        ${field('Structural fix', app.fix_reasoning)}
+        ${field('Why that fix', app.fix_why)}
+        ${field('Self-assessed gap', app.self_gap)}
+        ${field('Doing about the gap', app.gap_action)}
+        ${field('Pitch idea', app.pitch_idea)}
+        ${field('What the idea needs', app.pitch_needs)}
+        ${field('Why this project', app.why_this_project)}
+        ${field('Admired project', app.admired_project)}
+        ${field('Failed/abandoned project', app.failed_project)}
+        ${field('Hours/week', app.hours_per_week)}
+        ${field('Wallet', app.wallet)}
+        ${field('Additional notes', app.additional_notes)}
+        <div class="field">
+          <div class="field-label">Reviewer notes</div>
+          <textarea class="notes-box" id="notes-${app.id}">${esc(app.reviewer_notes||'')}</textarea>
+        </div>
+        <div class="action-row">
+          <button class="action-btn review" onclick="setStatus('${app.id}','review')">Mark review</button>
+          <button class="action-btn approve" onclick="setStatus('${app.id}','approved')">Approve</button>
+          <button class="action-btn reject" onclick="setStatus('${app.id}','rejected')">Reject</button>
+          <button class="action-btn save" onclick="saveNotes('${app.id}')">Save notes</button>
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function timeTag(app, key){
+  const t = app.time_spent && app.time_spent[key];
+  return t ? t+'s spent' : '';
+}
+
+function field(label, value, isLink, timeTagStr){
+  const has = value !== null && value !== undefined && value !== '';
+  const inner = has
+    ? (isLink ? `<a href="${esc(value)}" target="_blank" rel="noopener">${esc(value)}</a>` : esc(value))
+    : '<span class="field-value empty">—</span>';
+  return `<div class="field">
+    <div class="field-label">${label}${timeTagStr?` <span class="time-tag">${timeTagStr}</span>`:''}</div>
+    <div class="field-value${has?'':' empty'}">${has?inner:'—'}</div>
+  </div>`;
+}
+
+function esc(s){
+  if(s===null||s===undefined) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toggleCard(id){
+  document.getElementById('body-'+id).classList.toggle('open');
+}
+
+async function setStatus(id, status){
+  await fetch(SUPABASE_URL + '/rest/v1/core_applicants?id=eq.'+id, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + accessToken,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({status})
+  });
+  const app = applications.find(a=>a.id===id);
+  if(app) app.status = status;
+  renderList();
+}
+
+async function saveNotes(id){
+  const notes = document.getElementById('notes-'+id).value;
+  await fetch(SUPABASE_URL + '/rest/v1/core_applicants?id=eq.'+id, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + accessToken,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({reviewer_notes: notes})
+  });
+}
+
+document.getElementById('filters').addEventListener('click', (e)=>{
+  if(!e.target.dataset.status) return;
+  activeFilter = e.target.dataset.status;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderList();
+});
+</script>
+</body>
+</html>
