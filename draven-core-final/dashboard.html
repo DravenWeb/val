@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draven Core — Review Log</title>
+<style>
+:root{
+  --bg:#10131a; --panel:#171b24; --panel-2:#1c212c; --line:#2a3140;
+  --text:#e7e9ee; --muted:#8b93a3; --muted-2:#5c6577;
+  --c-core:#4a7fb0; --c-scaling:#3e8e8e; --c-finance:#b08947;
+  --c-frontier:#8b6fb0; --c-institutional:#b0524a; --c-convergence:#4a9b6e; --c-tooling:#c4622d;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1a2130 0%, transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, #171d29 0%, transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family: ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif;
+  line-height:1.5; min-height:100vh;
+}
+.mono{font-family: ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace;}
+
+/* login */
+#loginScreen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:100}
+.login-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:40px 34px;width:min(340px,90vw)}
+.login-title{font-weight:800;font-size:17px;margin-bottom:22px}
+.login-input{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:inherit;font-size:13.5px;padding:11px 14px;margin-bottom:12px;outline:none;transition:border-color .18s ease}
+.login-input:focus{border-color:var(--muted-2)}
+.login-btn{width:100%;padding:11px;background:transparent;color:var(--text);border:1px solid var(--line);border-radius:8px;font-weight:600;font-size:13.5px;cursor:pointer;margin-top:4px;transition:border-color .18s ease,background .18s ease}
+.login-btn:hover{border-color:var(--c-convergence);background:rgba(74,155,110,.08)}
+.login-err{color:var(--c-institutional);font-size:12px;margin-top:10px;min-height:16px}
+
+/* dashboard */
+#dashboard{display:none}
+header.dash-head{padding:40px 24px 24px;max-width:1080px;margin:0 auto;border-bottom:1px solid var(--line)}
+.doc-id{font-size:12px;letter-spacing:.14em;color:var(--muted-2);text-transform:uppercase;margin-bottom:14px}
+.dash-title{font-size:clamp(1.7rem,4vw,2.3rem);font-weight:800;letter-spacing:-.02em;margin-bottom:20px}
+.manifest{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:22px}
+.manifest .cell{background:var(--panel);padding:12px 16px}
+.manifest .cell b{display:block;font-size:1.2rem;font-weight:700}
+.manifest .cell small{color:var(--muted-2);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-bottom:20px}
+.legend .tag{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.legend .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filter-btn{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);border-radius:999px;font-size:11.5px;padding:7px 14px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;transition:border-color .18s ease,color .18s ease}
+.filter-btn.active{border-color:var(--c-convergence);color:var(--c-convergence)}
+.filter-btn:hover{color:var(--text)}
+
+.list{max-width:1080px;margin:0 auto;padding:28px 24px 80px}
+.entity{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;border-left:3px solid var(--muted-2);overflow:hidden}
+.card-head{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:12px;flex-wrap:wrap}
+.card-name{font-weight:700;font-size:15px}
+.card-sub{font-size:11px;color:var(--muted-2);margin-top:3px}
+.status-badge{font-size:10.5px;padding:5px 11px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em;border:1px solid var(--line);white-space:nowrap}
+
+.card-body{display:none;padding:0 20px 22px;border-top:1px solid var(--line)}
+.card-body.open{display:block}
+.field{margin-top:16px}
+.section-head{font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-top:26px;padding-top:16px;border-top:1px dashed var(--line)}
+.section-head:first-of-type{margin-top:18px;padding-top:0;border-top:none}
+.field-label{font-size:10.5px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.field-value{font-size:13.5px;line-height:1.6;white-space:pre-wrap;color:var(--text)}
+.field-value a{color:var(--c-core)}
+.field-value.empty{color:var(--muted-2);font-style:italic}
+.time-tag{font-size:10.5px;color:var(--muted-2);margin-left:8px}
+
+.notes-box{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-family:inherit;font-size:13.5px;padding:10px 12px;min-height:60px;margin-top:16px;resize:vertical;outline:none}
+.action-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.action-btn{font-size:11px;padding:8px 15px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:border-color .18s ease,color .18s ease,background .18s ease}
+.action-btn.approve:hover{border-color:var(--c-convergence);color:var(--c-convergence);background:rgba(74,155,110,.08)}
+.action-btn.reject:hover{border-color:var(--c-institutional);color:var(--c-institutional);background:rgba(176,82,74,.08)}
+.action-btn.review:hover{border-color:var(--c-finance);color:var(--c-finance);background:rgba(176,137,71,.08)}
+.action-btn.save{margin-left:auto}
+
+.empty-state{text-align:center;color:var(--muted-2);padding:60px 20px;font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-title">Draven Core — Review</div>
+    <input class="login-input" id="loginEmail" type="email" placeholder="email">
+    <input class="login-input" id="loginPass" type="password" placeholder="password">
+    <button class="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="dashboard">
+  <header class="dash-head">
+    <div class="doc-id mono">DRAVEN CORE — REVIEW LOG</div>
+    <div class="dash-title">Applications</div>
+    <div class="manifest mono" id="manifest">
+      <div class="cell"><b id="mTotal">0</b><small>Total</small></div>
+      <div class="cell"><b id="mPending">0</b><small>Pending</small></div>
+      <div class="cell"><b id="mReview">0</b><small>In Review</small></div>
+      <div class="cell"><b id="mApproved">0</b><small>Approved</small></div>
+      <div class="cell"><b id="mRejected">0</b><small>Rejected</small></div>
+    </div>
+    <div class="legend mono">
+      <span class="tag"><span class="dot" style="background:var(--muted-2)"></span>Pending</span>
+      <span class="tag"><span class="dot" style="background:var(--c-finance)"></span>Review</span>
+      <span class="tag"><span class="dot" style="background:var(--c-convergence)"></span>Approved</span>
+      <span class="tag"><span class="dot" style="background:var(--c-institutional)"></span>Rejected</span>
+    </div>
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-status="all">All</button>
+      <button class="filter-btn" data-status="pending">Pending</button>
+      <button class="filter-btn" data-status="review">Review</button>
+      <button class="filter-btn" data-status="approved">Approved</button>
+      <button class="filter-btn" data-status="rejected">Rejected</button>
+    </div>
+  </header>
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ufjzhfuazmhlvwmvvlgb.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_K_gDRujcdtPNBSuHpz0AcA_PN8tH7lv";
+
+let accessToken = null;
+let applications = [];
+let activeFilter = 'all';
+
+const SECTION_COLORS = {
+  "Identity": "var(--muted-2)",
+  "Your Story in Crypto": "var(--c-convergence)",
+  "Technical Grounding": "var(--c-core)",
+  "Conceptual Understanding": "var(--c-frontier)",
+  "The Gap You've Lived": "var(--c-institutional)",
+  "Perspective & Ideas": "var(--c-tooling)",
+  "Where You Think This Goes": "var(--c-scaling)",
+  "Motivation & Fit": "var(--c-finance)",
+  "What You Want From Draven": "var(--c-core)",
+  "Commitment": "var(--muted-2)"
+};
+function sectionColor(section){ return SECTION_COLORS[section] || 'var(--c-convergence)'; }
+function statusColor(status){
+  return {pending:'var(--muted-2)', review:'var(--c-finance)', approved:'var(--c-convergence)', rejected:'var(--c-institutional)'}[status] || 'var(--muted-2)';
+}
+
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.textContent = '';
+  try{
+    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','apikey':SUPABASE_ANON_KEY},
+      body: JSON.stringify({email, password})
+    });
+    const data = await res.json();
+    if(!res.ok || !data.access_token){
+      errEl.textContent = 'Invalid credentials.';
+      return;
+    }
+    accessToken = data.access_token;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadApplications();
+  }catch(e){
+    errEl.textContent = 'Network error.';
+  }
+}
+
+async function loadApplications(){
+  const res = await fetch(SUPABASE_URL + '/rest/v1/core_applicants?select=*&order=created_at.desc', {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + accessToken
+    }
+  });
+  applications = await res.json();
+  renderManifest();
+  renderList();
+}
+
+function renderManifest(){
+  document.getElementById('mTotal').textContent = applications.length;
+  document.getElementById('mPending').textContent = applications.filter(a=>a.status==='pending').length;
+  document.getElementById('mReview').textContent = applications.filter(a=>a.status==='review').length;
+  document.getElementById('mApproved').textContent = applications.filter(a=>a.status==='approved').length;
+  document.getElementById('mRejected').textContent = applications.filter(a=>a.status==='rejected').length;
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  const filtered = activeFilter==='all' ? applications : applications.filter(a=>a.status===activeFilter);
+  if(!filtered.length){
+    list.innerHTML = '<div class="empty-state">No applications in this view.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  filtered.forEach(app=>{
+    const card = document.createElement('div');
+    card.className = 'entity';
+    card.style.borderLeftColor = statusColor(app.status);
+    card.innerHTML = `
+      <div class="card-head" onclick="toggleCard('${app.id}')">
+        <div>
+          <div class="card-name">${esc(app.name||'(no name)')}</div>
+          <div class="card-sub mono">${esc(app.email||'')} · ${esc(app.telegram||'no telegram')} · ${new Date(app.created_at).toLocaleDateString()} · ${totalTime(app)}</div>
+        </div>
+        <div class="status-badge mono" style="color:${statusColor(app.status)};border-color:${statusColor(app.status)}">${app.status}</div>
+      </div>
+      <div class="card-body" id="body-${app.id}">
+        ${sectionHead('Identity')}
+        ${field('Telegram', app.telegram)}
+
+        ${sectionHead("Your Story in Crypto")}
+        ${field('Entry point', app.crypto_entry_point)}
+        ${field('Throughline', app.crypto_throughline)}
+        ${field('Turning point', app.crypto_turning_point)}
+        ${field('Pull-in moment', app.crypto_pull_moment)}
+        ${field('One-sentence journey', app.crypto_one_sentence)}
+
+        ${sectionHead('Technical Grounding')}
+        ${field('Layer', app.layer)}
+        ${field('Why that layer', app.layer_reasoning)}
+        ${field('Stack', (app.stack||[]).join(', '))}
+        ${field('Work link', app.work_link, true)}
+        ${field('Failure story', app.failure_story)}
+
+        ${sectionHead('Conceptual Understanding')}
+        ${field('Decentralization view', app.decentralization_view)}
+        ${field('DeFi primitive', app.defi_primitive)}
+        ${field('Mechanism explanation', app.defi_mechanism_explain)}
+        ${field('Wrong/overstated claim', app.wrong_claim)}
+
+        ${sectionHead("The Gap You've Lived")}
+        ${field('Economic background', app.economic_background)}
+        ${field('Gap moment', app.gap_moment)}
+        ${field('India lens', app.india_lens)}
+        ${field('Institution that failed them', app.failed_institution)}
+        ${field('How that failure changed a decision', app.institution_failure_impact)}
+        ${field('Hope for decentralization at scale', app.decentralization_at_scale_hope)}
+
+        ${sectionHead('Perspective & Ideas')}
+        ${field('Structural fix', app.fix_reasoning)}
+        ${field('Why that fix', app.fix_why)}
+        ${field('Self-assessed gap', app.self_gap)}
+        ${field('Doing about the gap', app.gap_action)}
+        ${field('Pitch idea', app.pitch_idea)}
+        ${field('What the idea needs', app.pitch_needs)}
+
+        ${sectionHead('Where You Think This Goes')}
+        ${field('Overhyped narrative', app.overhyped_narrative)}
+        ${field('Underbuilt opportunity', app.underbuilt_opportunity)}
+        ${field('India trajectory', app.india_trajectory)}
+        ${field('Mismatched use case', app.mismatched_use_case)}
+        ${field('Unlimited-resource build', app.unlimited_resource_build)}
+
+        ${sectionHead('Motivation & Fit')}
+        ${field('Why this project', app.why_this_project)}
+        ${field('Admired project', app.admired_project)}
+        ${field('Failed/abandoned project', app.failed_project)}
+
+        ${sectionHead('What You Want From Draven')}
+        ${field('Expectation from Draven', app.expectation_from_draven)}
+        ${field('Collaboration condition', app.collaboration_condition)}
+        ${field('Walkaway condition', app.walkaway_condition)}
+        ${field('Helpful feedback type', app.helpful_feedback_type)}
+        ${field('What Draven should NOT expect', app.honest_non_expectation)}
+
+        ${sectionHead('Commitment')}
+        ${field('Hours/week', app.hours_per_week)}
+        ${field('Wallet', app.wallet)}
+        ${field('Additional notes', app.additional_notes)}
+        <div class="field">
+          <div class="field-label">Reviewer notes</div>
+          <textarea class="notes-box" id="notes-${app.id}">${esc(app.reviewer_notes||'')}</textarea>
+        </div>
+        <div class="action-row">
+          <button class="action-btn review" onclick="setStatus('${app.id}','review')">Mark review</button>
+          <button class="action-btn approve" onclick="setStatus('${app.id}','approved')">Approve</button>
+          <button class="action-btn reject" onclick="setStatus('${app.id}','rejected')">Reject</button>
+          <button class="action-btn save" onclick="saveNotes('${app.id}')">Save notes</button>
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function totalTime(app){
+  if(!app.time_spent) return 'no timing data';
+  const seconds = Object.values(app.time_spent).reduce((sum, s) => sum + (Number(s) || 0), 0);
+  if(!seconds) return 'no timing data';
+  const mins = Math.round(seconds / 60);
+  return mins < 1 ? '<1 min total' : mins + ' min total';
+}
+
+function sectionHead(label){
+  return `<div class="section-head mono" style="color:${sectionColor(label)}">${label}</div>`;
+}
+
+function field(label, value, isLink){
+  const has = value !== null && value !== undefined && value !== '';
+  const inner = has
+    ? (isLink ? `<a href="${esc(value)}" target="_blank" rel="noopener">${esc(value)}</a>` : esc(value))
+    : '<span class="field-value empty">—</span>';
+  return `<div class="field">
+    <div class="field-label mono">${label}</div>
+    <div class="field-value${has?'':' empty'}">${has?inner:'—'}</div>
+  </div>`;
+}
+
+function esc(s){
+  if(s===null||s===undefined) return '';
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toggleCard(id){
+  document.getElementById('body-'+id).classList.toggle('open');
+}
+
+async function setStatus(id, status){
+  await fetch(SUPABASE_URL + '/rest/v1/core_applicants?id=eq.'+id, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + accessToken,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({status})
+  });
+  const app = applications.find(a=>a.id===id);
+  if(app) app.status = status;
+  renderManifest();
+  renderList();
+}
+
+async function saveNotes(id){
+  const notes = document.getElementById('notes-'+id).value;
+  await fetch(SUPABASE_URL + '/rest/v1/core_applicants?id=eq.'+id, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + accessToken,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({reviewer_notes: notes})
+  });
+}
+
+document.getElementById('filters').addEventListener('click', (e)=>{
+  if(!e.target.dataset.status) return;
+  activeFilter = e.target.dataset.status;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderList();
+});
+</script>
+</body>
+</html>

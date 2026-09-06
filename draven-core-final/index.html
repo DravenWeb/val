@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draven Core</title>
+<style>
+:root{
+  --bg:#10131a; --panel:#171b24; --panel-2:#1c212c; --line:#2a3140;
+  --text:#e7e9ee; --muted:#8b93a3; --muted-2:#5c6577;
+  --c-core:#4a7fb0; --c-scaling:#3e8e8e; --c-finance:#b08947;
+  --c-frontier:#8b6fb0; --c-institutional:#b0524a; --c-convergence:#4a9b6e; --c-tooling:#c4622d;
+  --ink:var(--text); --ink-dim:var(--muted); --teal:var(--c-convergence); --teal-dim:#3a7a58;
+  --rust:var(--c-institutional); --amber:var(--c-finance); --paper:var(--panel);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1a2130 0%, transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, #171d29 0%, transparent 55%),
+    var(--bg);
+  color:var(--text); font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif;
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace;}
+.wrap{max-width:680px;margin:0 auto;padding:0 24px}
+
+/* jump nav */
+.jumpnav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 24px;display:flex;justify-content:center;gap:22px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+.jumpnav a{color:var(--muted);text-decoration:none;border-bottom:1px solid transparent}
+.jumpnav a:hover{color:var(--text);border-bottom-color:var(--line)}
+.jumpnav a.apply{color:var(--c-convergence)}
+
+/* landing */
+main.landing{padding:60px 0 70px}
+.doc-id{font-size:12px;letter-spacing:.14em;color:var(--muted-2);text-transform:uppercase;margin-bottom:16px}
+main.landing h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:16px}
+main.landing h1 span{color:var(--c-convergence)}
+.subhead{color:var(--muted);font-size:1.05rem;max-width:56ch;margin-bottom:32px;line-height:1.6}
+
+.manifest{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:32px}
+.manifest .cell{background:var(--panel);padding:14px 16px}
+.manifest .cell b{display:block;font-size:1.2rem;font-weight:700}
+.manifest .cell small{color:var(--muted-2);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:26px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:999px;font-weight:600;font-size:14.5px;text-decoration:none;border:1px solid var(--line);transition:border-color .18s ease,background .18s ease,transform .18s ease;}
+.btn.primary{color:var(--text)}
+.btn.primary:hover{border-color:var(--c-convergence);background:rgba(74,155,110,.08);transform:translateY(-1px)}
+.btn.secondary{color:var(--muted)}
+.btn.secondary:hover{color:var(--text);border-color:var(--muted-2)}
+
+.linktree-link{display:inline-block;font-size:13px;color:var(--muted-2);text-decoration:none;border-bottom:1px solid transparent;margin-bottom:40px;}
+.linktree-link:hover{color:var(--c-convergence);border-bottom-color:var(--c-convergence)}
+
+.footline{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:24px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted-2)}
+
+/* scoped why-panel styles */
+:root{
+  --bg:#10131a; --panel:#171b24; --panel-2:#1c212c; --line:#2a3140;
+  --text:#e7e9ee; --muted:#8b93a3; --muted-2:#5c6577;
+  --c-core:#4a7fb0; --c-scaling:#3e8e8e; --c-finance:#b08947;
+  --c-frontier:#8b6fb0; --c-institutional:#b0524a; --c-convergence:#4a9b6e; --c-tooling:#c4622d;
+}
+#panel-why *{box-sizing:border-box;margin:0;padding:0}
+#panel-why body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #1a2130 0%, transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, #171d29 0%, transparent 55%),
+    var(--bg);
+  color:var(--text); font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif;
+  line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+#panel-why .mono{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace;}
+#panel-why .wrap{max-width:720px;margin:0 auto;padding:0 24px}
+#panel-why header{padding:64px 0 40px;border-bottom:1px solid var(--line)}
+#panel-why .doc-id{font-size:12px;letter-spacing:.14em;color:var(--muted-2);text-transform:uppercase;margin-bottom:16px}
+#panel-why h1{font-size:clamp(1.9rem,5vw,2.7rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:14px}
+#panel-why .subhead{color:var(--muted);font-size:1.02rem;max-width:58ch}
+#panel-why .back-link{display:inline-block;margin-top:26px;font-size:12.5px;color:var(--muted-2);text-decoration:none;border-bottom:1px solid transparent}
+#panel-why .back-link:hover{color:var(--text);border-bottom-color:var(--line)}
+#panel-why section{padding:44px 0;border-bottom:1px solid var(--line)}
+#panel-why .s-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+#panel-why .s-num{font-family:ui-monospace,monospace;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+#panel-why h2{font-size:clamp(1.3rem,3.4vw,1.6rem);font-weight:700;letter-spacing:-.01em}
+#panel-why p{color:var(--text);font-size:15px;margin-bottom:16px}
+#panel-why p:last-child{margin-bottom:0}
+#panel-why p.lede{color:var(--muted);font-size:14.5px}
+#panel-why strong{color:var(--text);font-weight:700}
+#panel-why .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:22px 0}
+#panel-why .stat-row .cell{background:var(--panel);padding:14px 16px}
+#panel-why .stat-row .cell b{display:block;font-size:1.05rem;font-weight:700}
+#panel-why .stat-row .cell small{color:var(--muted-2);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+#panel-why .not-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+#panel-why .not-list span{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);border:1px solid var(--line);padding:7px 12px;border-radius:999px}
+#panel-why .not-list span::before{content:"✕ ";color:var(--muted-2)}
+#panel-why .phase{display:flex;gap:16px;margin-bottom:20px}
+#panel-why .phase .yr{font-family:ui-monospace,monospace;font-weight:700;font-size:13px;min-width:56px;padding-top:2px}
+#panel-why .phase .body h3{font-size:14.5px;font-weight:700;margin-bottom:6px}
+#panel-why .phase .body p{font-size:14px;color:var(--muted);margin-bottom:0}
+#panel-why footer{padding:48px 0 80px;text-align:center}
+#panel-why .cta{display:inline-flex;align-items:center;gap:8px;padding:13px 32px;border-radius:999px;border:1px solid var(--line);color:var(--text);text-decoration:none;font-weight:600;font-size:14.5px;transition:border-color .18s ease,background .18s ease,transform .18s ease;}
+#panel-why .cta:hover{border-color:var(--c-convergence);background:rgba(74,155,110,.08);transform:translateY(-1px)}
+#panel-why .foot-note{margin-top:20px;font-size:12px;color:var(--muted-2)}
+#panel-why .foot-note a{color:var(--muted-2)}
+
+/* scoped legal-panel styles */
+:root{
+    --bg:#10131a; --paper:#171b24; --panel:#171b24; --panel-2:#1c212c; --line:#2a3140;
+    --ink:#e7e9ee; --ink-dim:#8b93a3; --muted:#5c6577;
+    --teal:#4a9b6e; --teal-dim:#3a7a58; --rust:#b0524a; --amber:#b08947;
+  }
+#panel-legal *{box-sizing:border-box;}
+#panel-legal html{scroll-behavior:smooth;}
+#panel-legal body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased;}
+#panel-legal *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+#panel-legal a{color:var(--teal);}
+#panel-legal .wrap{max-width:780px; margin:0 auto; padding:0 28px;}
+#panel-legal .cover{padding:80px 0 50px; border-bottom:2px solid var(--line); text-align:center;}
+#panel-legal .cover .mark{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--teal); margin-bottom:20px;}
+#panel-legal .cover h1{font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-weight:700; font-size:clamp(26px,4.6vw,42px); line-height:1.2; margin:0 0 14px; letter-spacing:-.01em;}
+#panel-legal .cover .doc-sub{font-size:15.5px; color:var(--ink-dim); max-width:520px; margin:0 auto 26px;}
+#panel-legal .cover .doc-meta{display:inline-flex; gap:24px; flex-wrap:wrap; justify-content:center; font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; color:var(--muted); border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:14px 0; margin-top:10px;}
+#panel-legal .cover .doc-meta strong{color:var(--ink-dim); font-weight:500;}
+#panel-legal .notice{background:var(--panel-2); border:1px solid var(--rust); border-left:3px solid var(--rust); padding:22px 24px; margin:32px 0;}
+#panel-legal .notice .k{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--rust); margin-bottom:8px; display:block;}
+#panel-legal .notice p{margin:0 0 10px; font-size:14px; color:var(--ink-dim);}
+#panel-legal .notice p:last-child{margin-bottom:0;}
+#panel-legal .defs{background:var(--panel); border:1px solid var(--line); padding:26px 28px; margin:0 0 40px;}
+#panel-legal .defs h2{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin:0 0 16px;}
+#panel-legal .defs dl{margin:0; display:grid; grid-template-columns:130px 1fr; gap:10px 18px;}
+#panel-legal .defs dt{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:12.5px; color:var(--ink); font-weight:600;}
+#panel-legal .defs dd{margin:0; font-size:13.5px; color:var(--ink-dim);}
+#panel-legal .defs dl{grid-template-columns:1fr;}
+#panel-legal .defs dd{margin-bottom:8px;}
+#panel-legal .part-divider{padding:64px 0 30px; text-align:center; border-top:2px solid var(--teal-dim); margin-top:20px;}
+#panel-legal .part-divider .label{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--teal);}
+#panel-legal .part-divider h2{font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-weight:700; font-size:clamp(24px,4vw,36px); margin:12px 0 10px;}
+#panel-legal .part-divider p{font-size:14.5px; color:var(--muted); max-width:480px; margin:0 auto;}
+#panel-legal .toc{padding:0 0 40px;}
+#panel-legal .toc-part{margin-bottom:22px;}
+#panel-legal .toc-part h3{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--teal); margin:0 0 10px;}
+#panel-legal .toc-part ol{margin:0; padding:0; list-style:none; columns:2; column-gap:28px;}
+#panel-legal .toc-part li{font-size:13px; margin-bottom:7px; break-inside:avoid;}
+#panel-legal .toc-part a{color:var(--ink-dim); text-decoration:none; border-bottom:1px solid transparent;}
+#panel-legal .toc-part a:hover{color:var(--teal); border-bottom-color:var(--teal-dim);}
+#panel-legal .toc-part ol{columns:1;}
+#panel-legal section.clause{padding:34px 0; border-bottom:1px solid var(--line);}
+#panel-legal h2.clause-title{font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-weight:600; font-size:19px; margin:0 0 4px; display:flex; gap:12px; align-items:baseline;}
+#panel-legal h2.clause-title .num{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:15px; color:var(--teal); font-weight:600;}
+#panel-legal .sub{display:flex; gap:12px; margin:14px 0; align-items:baseline;}
+#panel-legal .sub .subnum{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:12.5px; color:var(--muted); flex-shrink:0; min-width:38px;}
+#panel-legal .sub p{margin:0; font-size:15px; color:var(--ink-dim);}
+#panel-legal .clause p.lede{font-size:15px; color:var(--ink-dim); margin:0 0 6px;}
+#panel-legal .clause strong{color:var(--ink); font-weight:600;}
+#panel-legal .clause ul.plain{margin:10px 0 6px; padding-left:20px;}
+#panel-legal .clause ul.plain li{font-size:14.5px; color:var(--ink-dim); margin-bottom:7px;}
+#panel-legal .clause ul.plain li strong{color:var(--ink);}
+#panel-legal .callout{background:var(--panel); border:1px solid var(--teal-dim); border-left:3px solid var(--teal); padding:18px 20px; margin:16px 0;}
+#panel-legal .callout p{margin:0; font-size:14px; color:var(--ink-dim);}
+#panel-legal .callout strong{color:var(--teal);}
+#panel-legal .warnbox{background:var(--panel); border:1px solid var(--amber); border-left:3px solid var(--amber); padding:18px 20px; margin:16px 0;}
+#panel-legal .warnbox p{margin:0; font-size:14px; color:var(--ink-dim);}
+#panel-legal .warnbox strong{color:var(--amber);}
+#panel-legal .ptable{width:100%; border-collapse:collapse; margin:16px 0 22px; font-size:13.5px;}
+#panel-legal .ptable th, #panel-legal .ptable td{border:1px solid var(--line); padding:10px 12px; text-align:left; vertical-align:top;}
+#panel-legal .ptable th{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--teal); background:var(--panel);}
+#panel-legal .ptable td{color:var(--ink-dim); background:var(--panel-2);}
+#panel-legal .voice-block{background:var(--panel-2); border:1px solid var(--line); padding:28px 30px; margin-bottom:14px;}
+#panel-legal .voice-block p{font-size:16px; color:var(--ink-dim); margin:0 0 14px;}
+#panel-legal .voice-block p:last-child{margin-bottom:0;}
+#panel-legal .voice-block strong{color:var(--ink);}
+#panel-legal .voice-block em{color:var(--teal); font-style:italic;}
+#panel-legal .rule-list{list-style:none; margin:0; padding:0; counter-reset:r;}
+#panel-legal .rule-list li{counter-increment:r; display:grid; grid-template-columns:38px 1fr; gap:16px; padding:18px 0; border-top:1px solid var(--line);}
+#panel-legal .rule-list li:last-child{border-bottom:1px solid var(--line);}
+#panel-legal .rule-list li::before{content:counter(r); font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; color:var(--teal); font-size:14px; font-weight:600;}
+#panel-legal .rule-list h4{margin:0 0 5px; font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-weight:600; font-size:16px;}
+#panel-legal .rule-list p{margin:0; color:var(--ink-dim); font-size:14.5px;}
+#panel-legal footer{padding:56px 0 80px; text-align:center;}
+#panel-legal footer .signoff{font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-style:italic; font-size:16px; color:var(--ink-dim); margin-bottom:14px;}
+#panel-legal footer .stamp{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; color:var(--muted); letter-spacing:.05em;}
+</style>
+</head>
+<body>
+
+<nav class="jumpnav mono">
+  <a href="#panel-why">Why This Exists</a>
+  <a href="#panel-legal">Terms &amp; Guidelines</a>
+  <a href="apply.html" class="apply">Apply →</a>
+</nav>
+
+<main class="landing wrap" id="top">
+  <div class="doc-id mono">DRAVEN CORE</div>
+  <h1>A working cohort, not <span>an audience.</span></h1>
+  <p class="subhead">Draven Core is a small, vetted group of co-builders attached to the 2026–2027 build cycle in blockchain and Web3 — screened for people who ship, not people who follow. If you're already building, this is where that gets coordinated.</p>
+
+  <div class="manifest mono">
+    <div class="cell"><b>45</b><small>Questions</small></div>
+    <div class="cell"><b>OPEN</b><small>Status</small></div>
+    <div class="cell"><b>2026–27</b><small>Cycle</small></div>
+  </div>
+
+  <div class="actions">
+    <a href="apply.html" class="btn primary">Apply →</a>
+    <a href="#panel-why" class="btn secondary">Why this exists</a>
+    <a href="#panel-legal" class="btn secondary">Terms &amp; Guidelines</a>
+  </div>
+
+  <a href="https://linktr.ee/DravenWeb3" target="_blank" rel="noopener" class="linktree-link mono">See Draven's work →</a>
+
+  <div class="footline mono">
+    <span>DRAVEN · CORE</span>
+    <a href="#panel-legal" style="color:var(--muted-2)">Terms · Privacy · Guidelines</a>
+  </div>
+</main>
+
+<div id="panel-why">
+
+<header>
+  <div class="doc-id mono">DRAVEN CORE — RATIONALE</div>
+  <h1>Why this exists, for 2026–2027 specifically.</h1>
+  <p class="subhead">Not a mission statement. An accounting of the actual window, the actual thing being built, and why it takes a cohort instead of an audience to build it.</p>
+</header>
+
+<section>
+  <div class="s-head"><span class="s-num" style="color:var(--c-scaling);border-color:var(--c-scaling)">01</span><h2>The window</h2></div>
+  <p class="lede">Two things are true at the same time, and most people are only tracking one of them.</p>
+  <p>First: the certificate-to-job pipeline that ran India's white-collar economy for twenty years is compressing. Not eventually — now. Entry-level hiring at the top IT firms is down sharply since 2022, four major companies cited AI-driven productivity tools as the reason, and the pattern repeats across BPO, logistics, and ed-tech. One person with the right tools now produces what several used to. The certificate stops being the signal. What you've actually built becomes the signal.</p>
+  <p>Second: India is sitting inside a rare geopolitical window. US-China decoupling has global compute and semiconductor investment actively looking for a large, English-capable, non-aligned third geography — and India is that geography. Real infrastructure money is entering India's compute, AI, and blockchain layers over exactly this cycle, 2026 through 2027.</p>
+  <p><strong>The consequence:</strong> the old path (certificate → job) is narrowing at the same moment a new layer (protocol, infrastructure, execution) is opening. That overlap doesn't stay open indefinitely. Whoever is positioned at the infrastructure layer when it's still forming captures disproportionate ground. Whoever arrives after it's built captures none of it.</p>
+</section>
+
+<section>
+  <div class="s-head"><span class="s-num" style="color:var(--c-core);border-color:var(--c-core)">02</span><h2>What's actually being built</h2></div>
+  <p>Draven Core isn't a speculative community attached to an idea. It's attached to a live build with an existing track record.</p>
+  <div class="stat-row mono">
+    <div class="cell"><b>v4.2</b><small>Draven Intel — live</small></div>
+    <div class="cell"><b>Paying</b><small>Real subscribers</small></div>
+    <div class="cell"><b>LokChain</b><small>The actual destination</small></div>
+  </div>
+  <p>Draven Intel — an AI-driven airdrop legitimacy engine — is live, in production, with paying users, built on zero external funding and no institutional backing. That's not a pitch deck. It's the proof that the execution model this program runs on already works — the product carries the claim, not a founder story.</p>
+  <p>Draven Intel is the first product, not the destination. The destination is <strong>LokChain</strong> — mass-market crypto and Web3 infrastructure for the next hundred million Indian participants, built on the credibility and track record Draven Intel is accumulating right now. Core exists to build the bench of people capable of building that, before LokChain needs them — not to recruit after the fact.</p>
+</section>
+
+<section>
+  <div class="s-head"><span class="s-num" style="color:var(--c-convergence);border-color:var(--c-convergence)">03</span><h2>Why a cohort, not an audience</h2></div>
+  <p>The same test applies to community structure that applies to any tool or platform: does it transfer capability to the people in it, or does it manufacture their dependency on being there?</p>
+  <p>An audience is a fine thing to have and a different thing entirely from a cohort. A subscriber watches. A co-builder ships, gets reviewed, gets access, and can leave. That's why the application is deliberately hard to finish — 45 questions, unpaid, no guaranteed outcome, no fake urgency. A course takes anyone's money. A working cohort has to take fewer people more seriously, or it isn't one.</p>
+  <p>The filter isn't gatekeeping for its own sake. It's the only mechanism that keeps this a cohort instead of quietly becoming an audience with extra steps.</p>
+</section>
+
+<section>
+  <div class="s-head"><span class="s-num" style="color:var(--c-institutional);border-color:var(--c-institutional)">04</span><h2>What this is — and isn't</h2></div>
+  <p><strong>Is:</strong> a working relationship with real access to what's being built — tools, architecture, roadmap decisions — before any of it is public. Proximity to the work, not a subscription to it.</p>
+  <p><strong>Is not:</strong></p>
+  <div class="not-list">
+    <span>A course</span><span>A signal group</span><span>A paid tier</span>
+    <span>A guru funnel</span><span>Financial advice</span><span>A guaranteed outcome</span>
+  </div>
+</section>
+
+<section>
+  <div class="s-head"><span class="s-num" style="color:var(--c-tooling);border-color:var(--c-tooling)">05</span><h2>The 2026–2027 cycle, specifically</h2></div>
+  <div class="phase">
+    <div class="yr mono" style="color:var(--c-tooling)">2026</div>
+    <div class="body"><h3>Screening and first assignments</h3><p>Cohort applications open now. Approved builders get matched to real, current work inside Draven Intel and early LokChain architecture — not a waiting list, not a Discord to sit in.</p></div>
+  </div>
+  <div class="phase">
+    <div class="yr mono" style="color:var(--c-tooling)">2027</div>
+    <div class="body"><h3>LokChain moves from architecture to protocol</h3><p>The builder-facing infrastructure work shifts from design to shipped code, drawing on whoever has already proven themselves through Core by then.</p></div>
+  </div>
+  <p>The leverage here is specific to this window. Someone who joins after LokChain has shipped joins a cohort with an established track record and a much higher bar. Someone in this cycle is present while the track record itself is still being built.</p>
+</section>
+
+<section>
+  <div class="s-head"><span class="s-num" style="color:var(--c-finance);border-color:var(--c-finance)">06</span><h2>Who this is for</h2></div>
+  <p><strong>For:</strong> people who already build — a shipped repo, a live tool, a real deployed thing — and want that work coordinated with an active commercial roadmap instead of done in isolation.</p>
+  <p><strong>Not for:</strong> people looking for a mentor, a course, a paid alpha group, or a title to put on a profile. The application will surface that mismatch fast — that's what it's designed to do.</p>
+</section>
+
+</div>
+
+<div id="panel-legal">
+
+
+<div class="cover">
+  <div class="wrap">
+    <div class="mark">Unspoken Indians · Draven</div>
+    <h1>Terms of Service, Privacy Policy<br>&amp; Community Guidelines</h1>
+    <p class="doc-sub">The complete governing document for every product, session, and community space published under the name Draven.</p>
+    <div class="doc-meta">
+      <div><strong>Effective</strong> · August 22, 2026</div>
+      <div><strong>Operator</strong> · Draven (Unspoken Indians)</div>
+      <div><strong>Governing law</strong> · India / Uttarakhand</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="notice">
+    <span class="k">Before this goes live</span>
+    <p>This is a structural draft covering three distinct documents in one file: Terms of Service (Part A), Privacy Policy (Part B), and Community Guidelines (Part C). It is complete in shape, not yet in legal force.</p>
+    <p>Have an India-qualified lawyer confirm: whether the signal apps and mentorship curriculum require SEBI investment-adviser registration or fall under an exemption; enforceability of the liability-limitation clause under the Indian Contract Act and consumer-protection law; and whether Razorpay or Stripe impose their own required disclosures.</p>
+  </div>
+
+  <div class="defs">
+    <h2>Defined Terms</h2>
+    <dl>
+      <dt>"Draven," "I," "we"</dt><dd>The individual operating under the publishing identity Draven, under the label Unspoken Indians.</dd>
+      <dt>"You," "User," "Client"</dt><dd>Any person accessing content, using an app, purchasing a product, or booking a session.</dd>
+      <dt>"Services"</dt><dd>TTC content, Draven Intel, PulseFX, Quotrix, OmniPulse, the Binary Trading Mentorship program, published books, and 1:1 Web3 consulting sessions, collectively.</dd>
+      <dt>"Content"</dt><dd>All text, code, frameworks, curricula, evaluations, and signal outputs published or delivered through the Services.</dd>
+      <dt>"Community Spaces"</dt><dd>TTC's Telegram, Discord, and any other group chat or forum operated under the Draven name.</dd>
+    </dl>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-part">
+      <h3>Part A — Terms of Service</h3>
+      <ol>
+        <li><a href="#a1">A.1 Identity, Scope &amp; Engagement</a></li>
+        <li><a href="#a2">A.2 No Financial, Legal, or Professional Advice</a></li>
+        <li><a href="#a3">A.3 Digital-Asset &amp; Web3 Risk</a></li>
+        <li><a href="#a4">A.4 Client &amp; User Responsibilities</a></li>
+        <li><a href="#a5">A.5 Products Covered</a></li>
+        <li><a href="#a6">A.6 Booking, Payment &amp; Refunds</a></li>
+        <li><a href="#a7">A.7 Confidentiality</a></li>
+        <li><a href="#a8">A.8 Intellectual Property</a></li>
+        <li><a href="#a9">A.9 Limitation of Liability &amp; Indemnity</a></li>
+        <li><a href="#a10">A.10 General Terms &amp; Governing Law</a></li>
+        <li><a href="#a11">A.11 On the Name Draven</a></li>
+        <li><a href="#a12">A.12 Acceptance</a></li>
+      </ol>
+    </div>
+    <div class="toc-part">
+      <h3>Part B — Privacy Policy</h3>
+      <ol>
+        <li><a href="#b1">B.1 Information We Collect</a></li>
+        <li><a href="#b2">B.2 How Information Is Used</a></li>
+        <li><a href="#b3">B.3 Third-Party Processors</a></li>
+        <li><a href="#b4">B.4 Data Retention &amp; Deletion</a></li>
+        <li><a href="#b5">B.5 Your Rights</a></li>
+        <li><a href="#b6">B.6 Security</a></li>
+      </ol>
+    </div>
+    <div class="toc-part">
+      <h3>Part C — Community Guidelines</h3>
+      <ol>
+        <li><a href="#c1">C.1 A note from me, directly</a></li>
+        <li><a href="#c2">C.2 The rules</a></li>
+        <li><a href="#c3">C.3 Enforcement</a></li>
+      </ol>
+    </div>
+  </nav>
+</div>
+
+<main>
+
+<div class="part-divider"><div class="label">Part A</div><h2>Terms of Service</h2><p>The contract governing every product and session.</p></div>
+
+<div class="wrap">
+
+  <section class="clause" id="a1">
+    <h2 class="clause-title"><span class="num">A.1</span> Identity, Scope &amp; Engagement</h2>
+    <div class="sub"><span class="subnum">A.1.1</span><p>Draven is the identity under which all Services are published, under the publisher label Unspoken Indians. Draven operates personally and independently — not as an institution, regulated firm, broker, investment adviser, fiduciary, law firm, or financial-services provider — unless a separate written agreement expressly states otherwise.</p></div>
+    <div class="sub"><span class="subnum">A.1.2</span><p>For 1:1 sessions: length, format, price, and scope are those shown at booking. Sessions do not include custody of assets, execution of transactions, wallet or private-key management, legal representation, tax preparation, or formal security audit, unless separately agreed in writing.</p></div>
+  </section>
+
+  <section class="clause" id="a2">
+    <h2 class="clause-title"><span class="num">A.2</span> No Financial, Legal, or Professional Advice</h2>
+    <div class="callout"><p><strong>Educational and informational purposes only.</strong> Everything published or shared through the Services — TTC content, session guidance, PulseFX / Quotrix / OmniPulse outputs, Draven Intel evaluations, Binary Trading Mentorship curriculum, and books — is general educational content, not financial, investment, trading, legal, tax, or other professional advice.</p></div>
+    <div class="sub"><span class="subnum">A.2.1</span><p>Draven is not a SEBI-registered investment adviser, broker-dealer, fiduciary, attorney, accountant, or other licensed professional by virtue of any Service. Nothing here creates an adviser-client or fiduciary relationship.</p></div>
+    <div class="sub"><span class="subnum">A.2.2</span><p>No Service recommends that you buy, sell, hold, stake, borrow, lend, or transact in any digital asset. Signal outputs and evaluations are probabilistic educational tools, not directives. All decisions remain solely yours, at your own risk.</p></div>
+  </section>
+
+  <section class="clause" id="a3">
+    <h2 class="clause-title"><span class="num">A.3</span> Digital-Asset &amp; Web3 Risk</h2>
+    <div class="warnbox"><p><strong>Crypto and binary/leveraged trading can result in partial or total loss.</strong> Binary options carry a high risk of rapid, total loss and are restricted in some jurisdictions — confirming legality where you reside is your own responsibility. Never risk money you cannot afford to lose.</p></div>
+    <ul class="plain">
+      <li><strong>Market volatility</strong> — prices may fall to zero; liquidity may disappear without notice.</li>
+      <li><strong>Smart contracts</strong> — bugs, exploits, and oracle failures may cause irreversible loss.</li>
+      <li><strong>Wallet security</strong> — lost keys and phishing may permanently transfer assets. Draven will never ask for a private key or seed phrase.</li>
+      <li><strong>Regulatory and tax uncertainty</strong> — obligations vary by jurisdiction and are your own responsibility.</li>
+    </ul>
+  </section>
+
+  <section class="clause" id="a4">
+    <h2 class="clause-title"><span class="num">A.4</span> Client &amp; User Responsibilities</h2>
+    <div class="sub"><span class="subnum">A.4.1</span><p>You must provide accurate information, secure your own accounts and devices, verify transaction details independently, and obtain jurisdiction-specific advice before acting on anything learned through the Services.</p></div>
+    <div class="sub"><span class="subnum">A.4.2</span><p>You must not use any Service for fraud, market manipulation, or unlawful activity, and must not share paid access credentials or TTC access codes to bypass a tier or grant access to a non-paying user.</p></div>
+  </section>
+
+  <section class="clause" id="a5">
+    <h2 class="clause-title"><span class="num">A.5</span> Products Covered</h2>
+    <p class="lede">Where a specific product has supplementary terms shown at signup or checkout, those govern for that product; this document fills any gap.</p>
+    <ul class="plain">
+      <li><strong>TTC</strong> — free educational content and community spaces (Telegram, Discord, and other official channels).</li>
+      <li><strong>Draven Intel</strong> — paid airdrop-evaluation SaaS; tiered credit limits, no unlimited plan.</li>
+      <li><strong>PulseFX / Quotrix / OmniPulse</strong> — chart-analysis signal tools; outputs are probabilistic, not directives.</li>
+      <li><strong>Binary Trading Mentorship</strong> — paid education across free, beginner, and VIP-mentorship tiers; curriculum, not managed-account advisory.</li>
+      <li><strong>Books &amp; papers</strong> — <em>The Changeover</em> and the <em>Contact Epistemology</em> paper published free; <em>Sovereign Cognition</em> and <em>The Re-Entry</em> priced as shown on each book's page.</li>
+      <li><strong>1:1 Web3 consulting</strong> — booked sessions, governed additionally by A.6.</li>
+    </ul>
+  </section>
+
+  <section class="clause" id="a6">
+    <h2 class="clause-title"><span class="num">A.6</span> Booking, Payment &amp; Refunds</h2>
+    <div class="sub"><span class="subnum">A.6.1</span><p>You must be at least 18. <strong>Services are not offered to residents of the United States</strong> — U.S. persons must not book a session or subscribe to a paid product.</p></div>
+    <div class="sub"><span class="subnum">A.6.2</span><p>Payments are processed through Razorpay and, where enabled, Stripe. TTC access codes may also be purchased via USDT transfer, verified on-chain; Draven does not store card credentials directly.</p></div>
+    <div class="sub"><span class="subnum">A.6.3</span><p>1:1 sessions: rescheduling requires 24 hours' notice; cancellations with less notice and no-shows forfeit the fee.</p></div>
+    <div class="sub"><span class="subnum">A.6.4</span><p>Session fees and digital product access are non-refundable once delivered. No refund is owed because a client dislikes an opinion, does not implement guidance given, or experiences a market loss — except where required by applicable consumer-protection law, or where delivery failed for reasons within Draven's control.</p></div>
+  </section>
+
+  <section class="clause" id="a7">
+    <h2 class="clause-title"><span class="num">A.7</span> Confidentiality</h2>
+    <p class="lede">Both parties protect non-public information shared for a 1:1 engagement, for three years after the engagement ends. Recording requires prior written consent from both parties unless law requires otherwise. Do not send private keys, seed phrases, passwords, or unnecessary sensitive personal information over any channel.</p>
+  </section>
+
+  <section class="clause" id="a8">
+    <h2 class="clause-title"><span class="num">A.8</span> Intellectual Property</h2>
+    <p class="lede">Frameworks, curricula, code, and written materials remain Draven's property unless explicitly released open-access. Payment grants a limited, non-transferable licence for personal use only — no resale, redistribution, public republication, or use to train a competing system.</p>
+  </section>
+
+  <section class="clause" id="a9">
+    <h2 class="clause-title"><span class="num">A.9</span> Limitation of Liability &amp; Indemnity</h2>
+    <p class="lede">Services are provided "as is," without warranty of accuracy, security, or suitability. To the maximum extent permitted by law, Draven is not liable for indirect or consequential damages; total liability for any claim is limited to the amount you paid for the specific product or session in the twelve months preceding the claim. You indemnify Draven against claims arising from your breach of these terms or unlawful conduct. Nothing here excludes liability that cannot legally be excluded, including for fraud or deliberate misconduct.</p>
+  </section>
+
+  <section class="clause" id="a10">
+    <h2 class="clause-title"><span class="num">A.10</span> General Terms &amp; Governing Law</h2>
+    <p class="lede">Governed by the laws of India; disputes subject to the exclusive jurisdiction of the courts of <strong>Uttarakhand, India</strong>, subject to mandatory consumer rights. Terms may be updated at any time by posting a revised version with a new effective date; continued use after an update is acceptance. If any provision is held invalid, it is narrowed to the minimum extent necessary and the rest remains in effect.</p>
+  </section>
+
+  <section class="clause" id="a11">
+    <h2 class="clause-title"><span class="num">A.11</span> On the Name Draven</h2>
+    <div class="voice-block">
+      <p>I publish as <strong>Draven, aka Decentralised Epistemologist</strong> — blockchain architect, Web3 builder. This is a deliberate separation between the person and the work, so the work is what gets judged. Bitcoin's proof-of-work doesn't ask you to trust Satoshi Nakamoto's résumé — it asks you to verify the chain yourself. That's the standard I hold my own output to, and it's the same standard behind my own framework, <em>Contact Epistemology</em>: a claim is tested against structure and mechanics, not against a name or a credential.</p>
+      <p>That standard governs how I build. It does not change what the law requires of what I sell. The disclosures in A.2 and A.3 are not softened by this clause — they are the terms.</p>
+    </div>
+  </section>
+
+  <section class="clause" id="a12" style="border-bottom:none;">
+    <h2 class="clause-title"><span class="num">A.12</span> Acceptance</h2>
+    <div class="callout"><p>By accessing, paying for, or participating in any Service, you confirm you have read, understood, and accepted these Terms in full. If you do not agree, do not proceed.</p></div>
+  </section>
+
+</div>
+
+<div class="part-divider"><div class="label">Part B</div><h2>Privacy Policy</h2><p>What's collected across the apps, why, and where it goes.</p></div>
+
+<div class="wrap">
+
+  <section class="clause" id="b1">
+    <h2 class="clause-title"><span class="num">B.1</span> Information We Collect</h2>
+    <table class="ptable">
+      <tr><th>Category</th><th>Examples</th><th>Where</th></tr>
+      <tr><td>Account data</td><td>Email, authentication credentials, plan tier</td><td>Draven Intel, PulseFX, Quotrix, OmniPulse (shared Supabase instance)</td></tr>
+      <tr><td>Usage data</td><td>Evaluation/scan counts against plan limits</td><td>All apps</td></tr>
+      <tr><td>Payment confirmation</td><td>Transaction status, plan purchased — not card numbers</td><td>Razorpay / Stripe (processed by them directly)</td></tr>
+      <tr><td>Crypto payment verification</td><td>Wallet address and transaction hash for USDT access-code purchases</td><td>TTC Telegram payment bot, verified via Etherscan / TronGrid</td></tr>
+      <tr><td>Uploaded content</td><td>Chart images or OHLC data submitted for analysis</td><td>PulseFX, Quotrix, OmniPulse</td></tr>
+      <tr><td>Session notes</td><td>Booking details, correspondence</td><td>1:1 consulting, by email</td></tr>
+    </table>
+  </section>
+
+  <section class="clause" id="b2">
+    <h2 class="clause-title"><span class="num">B.2</span> How Information Is Used</h2>
+    <p class="lede">Solely to operate the Services: authenticate you, enforce plan and access-code limits, generate the evaluation or signal you requested, verify a payment, and respond to support requests. Uploaded chart data is used only to generate your result — not sold to third parties, and not used to train a model beyond what generating your specific result requires.</p>
+  </section>
+
+  <section class="clause" id="b3">
+    <h2 class="clause-title"><span class="num">B.3</span> Third-Party Processors</h2>
+    <p class="lede">Supabase (database/auth), Razorpay and Stripe (payments), Vercel (hosting), Etherscan and TronGrid (on-chain payment verification), TradingView (chart display, where integrated), and the Anthropic API (Claude — evaluation logic and in-app assistant). Each processes data under its own privacy terms; Draven selects providers for strong security and privacy standards but is not responsible for their independent policy changes or outages.</p>
+  </section>
+
+  <section class="clause" id="b4">
+    <h2 class="clause-title"><span class="num">B.4</span> Data Retention &amp; Deletion</h2>
+    <p class="lede">Account data is retained while your account remains active. On a verified deletion request or account closure, data is deleted within 30 days, except records legally required to be retained (e.g. transaction records). Deletion requests go to the contact in B.5 / the footer.</p>
+  </section>
+
+  <section class="clause" id="b5">
+    <h2 class="clause-title"><span class="num">B.5</span> Your Rights</h2>
+    <p class="lede">You may request a copy of the data held about you, request correction of inaccurate data, or request deletion subject to legal retention requirements. Requests are handled through the contact channel below.</p>
+  </section>
+
+  <section class="clause" id="b6" style="border-bottom:none;">
+    <h2 class="clause-title"><span class="num">B.6</span> Security</h2>
+    <p class="lede">Authentication and access-control measures are applied across the apps. No system is completely secure; you are responsible for keeping your own login credentials confidential.</p>
+  </section>
+
+</div>
+
+<div class="part-divider"><div class="label">Part C</div><h2>Community Guidelines</h2><p>Not a contract — a set of standards I hold the TTC community to, in my own words.</p></div>
+
+<div class="wrap">
+
+  <section class="clause" id="c1">
+    <h2 class="clause-title"><span class="num">C.1</span> A note from me, directly</h2>
+    <div class="voice-block">
+      <p>Everything above this section is the legal layer — necessary, but not how I actually want to talk to the people in this community. This part is that.</p>
+      <p>I built TTC as a distribution channel for real signal, not noise. If you're here, I'm assuming you want the same thing: structure over hype, verification over vibes — the same principle behind Contact Epistemology, applied to a trading community instead of a research paper. The rules below aren't there to control you. They're there so the space stays useful for the next person who shows up looking for the same thing you were.</p>
+    </div>
+  </section>
+
+  <section class="clause" id="c2">
+    <h2 class="clause-title"><span class="num">C.2</span> The rules</h2>
+    <ul class="rule-list">
+      <li><div><h4>No guaranteed-return talk</h4><p>Not from me, not from you, not from anyone posting in these spaces. If a claim can't survive being checked, it doesn't belong here — that applies to community members exactly as much as it applies to me.</p></div></li>
+      <li><div><h4>No signal-selling outside official channels</h4><p>If someone is DMing "guaranteed" calls, private groups, or asking for funds to manage on your behalf inside a TTC space, that is not me and not sanctioned by me. Report it, don't engage with it.</p></div></li>
+      <li><div><h4>Losses are yours, and so are the decisions</h4><p>I'll explain reasoning as clearly as I can. I won't pretend a loss was your fault for "not following instructions closely enough," and I won't take credit for a win that was your own risk call. Own the decision either way.</p></div></li>
+      <li><div><h4>No harassment, doxxing, or personal-identity requests</h4><p>Don't ask other members — or me — for real-name, location, or personal identifying information. The pseudonym policy in A.11 applies to everyone here, not just me.</p></div></li>
+      <li><div><h4>Disagreement is welcome; bad faith isn't</h4><p>Push back on my calls, my reasoning, my framework — that's the whole point of testing a claim against structure instead of authority. Bad-faith pile-ons, spam, and manipulation get removed regardless of who's right.</p></div></li>
+    </ul>
+  </section>
+
+  <section class="clause" id="c3" style="border-bottom:none;">
+    <h2 class="clause-title"><span class="num">C.3</span> Enforcement</h2>
+    <p class="lede">Violations may result in a warning, removal from a Community Space, or loss of paid access without refund, at my discretion. This section is a code of conduct, not a substitute for the Terms in Part A — where the two overlap, Part A governs.</p>
+  </section>
+
+</div>
+
+</main>
+
+<footer class="wrap">
+  <div class="signoff">Verify everything. Trust nothing that can't survive it.</div>
+  <div class="stamp">DRAVEN · UNSPOKEN INDIANS<br>DRAFT TEMPLATE — REQUIRES REVIEW BY LICENSED COUNSEL BEFORE PUBLICATION<br>Contact: dravencrypto64@gmail.com</div>
+</footer>
+
+
+</div>
+
+</body>
+</html>
