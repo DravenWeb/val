@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draven — Published Work &amp; Protocol Roadmap</title>
+<style>
+  :root{
+    --bg:#05070d; --panel:#0c1220; --panel-2:#111a2e; --line:#1e2b45;
+    --ink:#eef2ff; --ink-dim:#8891b0; --muted:#565f7d;
+    --teal:#00e5ff; --teal-dim:#0a5a66; --rust:#ff5470; --amber:#ffb84a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; line-height:1.65; -webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);}
+  .wrap{max-width:900px; margin:0 auto; padding:0 28px;}
+
+  header{padding:76px 0 46px; border-bottom:1px solid var(--line);}
+  .mark{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--teal); margin-bottom:18px;}
+  h1{font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-weight:600; font-size:clamp(30px,5vw,50px); line-height:1.1; margin:0 0 16px;}
+  .sub{font-size:16.5px; color:var(--ink-dim); max-width:600px; margin:0;}
+
+  .legend{display:flex; gap:20px; flex-wrap:wrap; padding:22px 0; font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; color:var(--muted); border-bottom:1px solid var(--line);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:7px; height:7px; border-radius:50%; display:inline-block;}
+  .dot.live{background:var(--teal);}
+  .dot.build{background:var(--amber);}
+  .dot.plan{background:var(--muted);}
+
+  section{padding:50px 0; border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:22px; flex-wrap:wrap; gap:10px;}
+  h2{font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-weight:600; font-size:22px; margin:0;}
+  .sec-note{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+
+  .item{display:grid; grid-template-columns:22px 1fr auto; gap:16px; align-items:start; padding:16px 0; border-top:1px solid var(--line);}
+  .item:first-of-type{border-top:none;}
+  .item .dot{margin-top:7px;}
+  .item h3{margin:0 0 4px; font-family:ui-sans-serif,'Inter','Segoe UI',-apple-system,sans-serif; font-weight:600; font-size:16.5px;}
+  .item p{margin:0; color:var(--ink-dim); font-size:14px;}
+  .item .price{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11.5px; color:var(--teal); white-space:nowrap;}
+
+  .fill{background:var(--panel-2); color:var(--ink-dim); padding:1px 6px; border-radius:2px; font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:.88em; border:1px dashed var(--amber);}
+
+  .roadmap-note{background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--teal); padding:18px 20px; font-size:14.5px; color:var(--ink-dim); margin-top:24px;}
+
+  footer{padding:48px 0 70px;}
+  footer p{font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace; font-size:11px; color:var(--muted); margin:0 0 6px;}
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <a href="index.html" style="display:inline-block;margin-bottom:20px;font-family:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;">← Draven Core</a>
+  <div class="mark">Unspoken Indians · Draven</div>
+  <h1>Published Work &amp; Protocol Roadmap</h1>
+  <p class="sub">Everything free, everything paid, and where each build actually stands — kept current, not announced once and left stale.</p>
+</header>
+
+<div class="wrap">
+  <div class="legend">
+    <span><span class="dot live"></span>Live / published</span>
+    <span><span class="dot build"></span>In build</span>
+    <span><span class="dot plan"></span>Planned</span>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section>
+    <div class="sec-head"><h2>Research &amp; Books</h2><span class="sec-note">Free unless noted</span></div>
+    <div class="item"><span class="dot build"></span><div><h3>The Changeover</h3><p>Decentralized finance and monetary reform, written for a reader with no financial background — Bihar field worker to developer, same book. English and Hindi. Chapter 1 complete at full depth.</p></div><span class="price">Free</span></div>
+    <div class="item"><span class="dot build"></span><div><h3>Contact Epistemology</h3><p>The verification method itself — paper first, book after. The empirical core: an independent derivation of Friston's predictive-processing framework, tested against a neuroscience deep-dive.</p></div><span class="price">Free</span></div>
+    <div class="item"><span class="dot build"></span><div><h3>The Re-Entry</h3><p>How advertising re-enters and overturns a decision you already made. Thirteen-chapter blueprint; three chapters written.</p></div><span class="price">$10</span></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Articles &amp; Notes</h2><span class="sec-note">Rolling, not versioned</span></div>
+    <div class="item"><span class="dot plan"></span><div><h3><span class="fill">ARTICLE TITLE</span></h3><p><span class="fill">ONE-LINE SUMMARY — FILL AS PUBLISHED</span></p></div><span class="price"><span class="fill">DATE</span></span></div>
+    <div class="item"><span class="dot plan"></span><div><h3><span class="fill">ARTICLE TITLE</span></h3><p><span class="fill">ONE-LINE SUMMARY — FILL AS PUBLISHED</span></p></div><span class="price"><span class="fill">DATE</span></span></div>
+    <p style="font-size:13px; color:var(--muted); margin-top:6px;">This section is a template until specific pieces are named — it's built to be appended to, not rebuilt each time.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Protocols &amp; Platforms</h2><span class="sec-note">Status as of last update</span></div>
+    <div class="item"><span class="dot build"></span><div><h3>Draven Intel</h3><p>Airdrop-legitimacy evaluation. Live v1 running; full institutional-grade rebuild (Next.js 14, Supabase, Razorpay-primary) underway across 10 phases.</p></div><span class="price">SaaS</span></div>
+    <div class="item"><span class="dot build"></span><div><h3>TrustLink</h3><p>P2P micro-lending on Solana/Polygon — collateral-locked, auto-executing, no gatekeeper deciding who gets credit. Architecture defined; build underway.</p></div><span class="price">Protocol</span></div>
+    <div class="item"><span class="dot build"></span><div><h3>India 528 / Draven Way</h3><p>Non-looping district-level route across every Indian state and UT. Zones 1–2 of 7 mapped; field verification begins 2027.</p></div><span class="price">Open data</span></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Draven Core</h2><span class="sec-note">Builder program</span></div>
+    <div class="item"><span class="dot live"></span><div><h3>Applications open</h3><p>Vetted co-builder screening for blockchain/Web3 developers joining active development work. Written application, reviewed against demonstrated understanding — not a call, not a credential check.</p></div><a href="apply.html" class="price">Apply →</a></div>
+  </section>
+
+  <div class="roadmap-note">This page is the single source of status — if something reads "in build" here, treat any older claim elsewhere as out of date, not the reverse.</div>
+
+</main>
+
+<footer class="wrap">
+  <p>DRAVEN · UNSPOKEN INDIANS — PUBLISHED WORK</p>
+  <p>Legal identity kept off this layer by design. Business inquiries route through the contact on the Terms page.</p>
+</footer>
+
+</body>
+</html>
