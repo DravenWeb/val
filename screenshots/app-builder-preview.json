@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "DravenWeb3Devs",
+      "hasCanvas": false,
+      "bodyTextLen": 10129,
+      "bodyTextHash": "64acbe7ac2eaa790a089738487f366680cfac6a944e3c29bf08fad3dc9c73c4a",
+      "bodyTextPrefix": "DRAVEN · WEB3DEVS BRIEF AGENDA VOICES ROOMS CONFIRM POST CONFIRM",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "DravenWeb3Devs",
+      "hasCanvas": false,
+      "bodyTextLen": 10087,
+      "bodyTextHash": "0039edde0d17f5007a6108c6117c5be663a9041d15c5058f3f9287f0dc9cd2ff",
+      "bodyTextPrefix": "DRAVEN · WEB3DEVS MENU DRAVEN CORE · Q4 2026 BRIEFING The form i",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
